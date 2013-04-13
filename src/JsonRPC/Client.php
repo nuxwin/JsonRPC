@@ -7,6 +7,8 @@ class Client
     private $url;
     private $timeout;
     private $debug;
+    private $username;
+    private $password;
 
 
     public function __construct($url, $timeout = 5, $debug = false)
@@ -14,6 +16,13 @@ class Client
         $this->url = $url;
         $this->timeout = $timeout;
         $this->debug = $debug;
+    }
+
+
+    public function authentication($username, $password)
+    {
+        $this->username = $username;
+        $this->password = $password;
     }
 
 
@@ -65,6 +74,11 @@ class Client
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+
+        if ($this->username && $this->password) {
+
+            curl_setopt($ch, CURLOPT_USERPWD, $this->username.':'.$this->password);
+        }
 
         $response = json_decode(curl_exec($ch), true);
 

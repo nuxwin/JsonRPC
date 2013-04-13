@@ -14,12 +14,36 @@ class Server
     }
 
 
-    public function getPayload()
-    {
-        $result = json_decode(file_get_contents('php://input'), true);
-        if ($result) return $result;
+    public function allowHosts(array $hosts) {
 
-        return array();
+        if (! in_array($_SERVER['REMOTE_ADDR'], $hosts)) {
+
+            header('Content-Type: application/json');
+            header('HTTP/1.0 403 Forbidden');
+            echo '["Access Forbidden"]';
+            exit;
+        }
+    }
+
+
+    public function authentication(array $users)
+    {
+        // OVH workaround
+        if (isset($_SERVER['REMOTE_USER'])) {
+
+            list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = explode(':', base64_decode(substr($_SERVER['REMOTE_USER'], 6)));
+        }
+
+        if (! isset($_SERVER['PHP_AUTH_USER']) ||
+            ! isset($users[$_SERVER['PHP_AUTH_USER']]) ||
+            $users[$_SERVER['PHP_AUTH_USER']] !== $_SERVER['PHP_AUTH_PW']) {
+
+            header('WWW-Authenticate: Basic realm="JsonRPC"');
+            header('Content-Type: application/json');
+            header('HTTP/1.0 401 Unauthorized');
+            echo '["Authentication failed"]';
+            exit;
+        }
     }
 
 
