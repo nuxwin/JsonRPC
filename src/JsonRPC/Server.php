@@ -82,6 +82,7 @@ class Server
 
         $response = array_merge($response, $data);
 
+        header('Content-Type: application/json');
         return json_encode($response);
     }
 

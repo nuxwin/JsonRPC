@@ -10,12 +10,19 @@ class Client
     private $username;
     private $password;
 
+    private $headers = array(
+        'Connection: close',
+        'Content-Type: application/json',
+        'Accept: application/json'
+    );
 
-    public function __construct($url, $timeout = 5, $debug = false)
+
+    public function __construct($url, $timeout = 5, $debug = false, $headers = array())
     {
         $this->url = $url;
         $this->timeout = $timeout;
         $this->debug = $debug;
+        $this->headers = array_merge($this->headers, $headers);
     }
 
 
@@ -58,11 +65,6 @@ class Client
 
     public function doRequest($payload)
     {
-        $headers = array(
-            'Connection: close',
-            'Content-Type: application/json'
-        );
-
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL, $this->url);
@@ -70,7 +72,7 @@ class Client
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->timeout);
         curl_setopt($ch, CURLOPT_USERAGENT, 'JSON-RPC PHP Client');
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $this->headers);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
