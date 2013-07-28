@@ -82,7 +82,8 @@ class Client
             curl_setopt($ch, CURLOPT_USERPWD, $this->username.':'.$this->password);
         }
 
-        $response = json_decode(curl_exec($ch), true);
+        $result = curl_exec($ch);
+        $response = json_decode($result, true);
 
         curl_close($ch);
 
